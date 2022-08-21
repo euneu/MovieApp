@@ -59,6 +59,8 @@ table {
   box-sizing: border-box;
 }
 body {
+  /* scrollbar 지우는 옵션 */
+  overflow-x:hidden;
   font-weight: 300;
   font-family: 'Source Sans Pro', sans-serif;
   color:${(props) => props.theme.white.darker};

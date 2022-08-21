@@ -45,15 +45,18 @@ const Slider = styled(motion.div)`
 const Row = styled(motion.div)`
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 10px;
+  gap: 5px;
   position: absolute;
   width: 100%;
 `;
 
-const Box = styled(motion.div)`
+const Box = styled(motion.div)<{ bgPhoto: string }>`
   background-color: white;
   font-size: 20px;
   color: black;
+  background-image: url(${(props) => props.bgPhoto});
+  background-size: cover;
+  background-position: center center;
   height: 200px;
 `;
 
@@ -63,15 +66,18 @@ const Box = styled(motion.div)`
 // window.innerHeight : 브라우저 화면의 높이
 const rowVariants = {
   hidden: {
-    x: window.outerWidth,
+    x: window.outerWidth + 5,
   },
   visible: {
     x: 0,
   },
   exit: {
-    x: -window.outerWidth,
+    x: -window.outerWidth - 5,
   },
 };
+
+// ⭐ 한번에 보여주고 싶은 영화의 수
+const offset = 6;
 
 function Home() {
   const { data, isLoading } = useQuery<IGetMovieResult>(
@@ -80,9 +86,14 @@ function Home() {
   );
   const [index, setIndex] = useState(0);
   const increaseIndex = () => {
-    if (leaving) return;
-    toggleLeaving();
-    setIndex((prev) => prev + 1);
+    if (data) {
+      if (leaving) return;
+      toggleLeaving();
+      // ⭐ 보여줄 영화 끝났는데 인덱스가 넘어가는 것을 방지하려고
+      const totalMovies = data.results.length - 1;
+      const maxIndex = Math.floor(totalMovies / offset) - 1; //내림
+      setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+    }
   };
   const toggleLeaving = () => setLeaving((prev) => !prev);
   const [leaving, setLeaving] = useState(false);
@@ -118,9 +129,17 @@ function Home() {
                 transition={{ type: "tween", duration: 1 }}
                 key={index}
               >
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <Box key={i}>{i}</Box>
-                ))}
+                {/* ⭐ 메인 화면에 사용한 영화 제외 하려면 slice(1) 
+                    index는 페이지, offset는 보여주고 싶은 영화 개수*/}
+                {data?.results
+                  .slice(1)
+                  .slice(offset * index, offset * index + offset)
+                  .map((movie) => (
+                    <Box
+                      key={movie.id}
+                      bgPhoto={makeImgPath(movie.backdrop_path, "w500")}
+                    />
+                  ))}
               </Row>
             </AnimatePresence>
           </Slider>
