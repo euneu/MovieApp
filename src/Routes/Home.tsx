@@ -102,8 +102,13 @@ function Home() {
           </Banner>
           <Slider>
             {/* onExitComplete exit가 끝난 후 실행됨 
-            ⭐ 클릭을 여러번 하면 슬라이더에 이상한 gap이 생기는 현상을 막기 위함*/}
-            <AnimatePresence onExitComplete={toggleLeaving}>
+                ⭐ 클릭을 여러번 하면 슬라이더에 이상한 gap이 생기는 현상을 막기 위함
+                initial = {false}
+                컴포넌트가 처음 렌더링 될때 자식의 초기 애니메이션 비활성화
+                ⭐ 새로 고침해서 랜더링할 때 슬라이더가 고정되어있지 않고 오른쪽에서 나타나는 현상 막기 위함
+            */}
+
+            <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
               {/* ⭐ key가 바뀌면 새로운 Row가 생겼다고 인식함 */}
               <Row
                 variants={rowVariants}
