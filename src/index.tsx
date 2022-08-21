@@ -1,10 +1,9 @@
 import React from "react";
-import ReactDOM from "react-dom/client";
-import "./index.css";
-import App from "./App";
+import ReactDOM from "react-dom";
 import { RecoilRoot } from "recoil";
-import { createGlobalStyle } from "styled-components";
 import { ThemeProvider } from "styled-components";
+import App from "./App";
+import { createGlobalStyle } from "styled-components";
 import { theme } from "./theme";
 
 const GlobalStyle = createGlobalStyle`
@@ -72,10 +71,7 @@ a {
 }
 `;
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
-);
-root.render(
+ReactDOM.render(
   <React.StrictMode>
     <RecoilRoot>
       <ThemeProvider theme={theme}>
@@ -83,5 +79,6 @@ root.render(
         <App />
       </ThemeProvider>
     </RecoilRoot>
-  </React.StrictMode>
+  </React.StrictMode>,
+  document.getElementById("root")
 );
