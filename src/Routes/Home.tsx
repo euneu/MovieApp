@@ -79,7 +79,13 @@ function Home() {
     getMovies
   );
   const [index, setIndex] = useState(0);
-  const increaseIndex = () => setIndex((prev) => prev + 1);
+  const increaseIndex = () => {
+    if (leaving) return;
+    toggleLeaving();
+    setIndex((prev) => prev + 1);
+  };
+  const toggleLeaving = () => setLeaving((prev) => !prev);
+  const [leaving, setLeaving] = useState(false);
   return (
     <Wrapper>
       {isLoading ? (
@@ -95,7 +101,9 @@ function Home() {
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
           <Slider>
-            <AnimatePresence>
+            {/* onExitComplete exit가 끝난 후 실행됨 
+            ⭐ 클릭을 여러번 하면 슬라이더에 이상한 gap이 생기는 현상을 막기 위함*/}
+            <AnimatePresence onExitComplete={toggleLeaving}>
               {/* ⭐ key가 바뀌면 새로운 Row가 생겼다고 인식함 */}
               <Row
                 variants={rowVariants}
