@@ -43,6 +43,7 @@ const Slider = styled(motion.div)`
 `;
 
 const Row = styled(motion.div)`
+  padding: 10px;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 5px;
@@ -58,6 +59,26 @@ const Box = styled(motion.div)<{ bgPhoto: string }>`
   background-size: cover;
   background-position: center center;
   height: 200px;
+  &:first-child {
+    transform-origin: center left;
+  }
+  &:last-child {
+    transform-origin: center right;
+  }
+`;
+
+const Info = styled(motion.div)`
+  padding: 20px;
+  width: 100%;
+  bottom: 0;
+  background-color: ${(props) => props.theme.black.lighter};
+  color: white;
+  opacity: 0;
+  position: absolute;
+  h4 {
+    text-align: center;
+    font-size: 15px;
+  }
 `;
 
 // window.outerWidth : 브라우저 전체의 너비
@@ -73,6 +94,30 @@ const rowVariants = {
   },
   exit: {
     x: -window.outerWidth - 5,
+  },
+};
+
+const BoxVarient = {
+  normal: {
+    scale: 1,
+  },
+  hover: {
+    scale: 1.3,
+    y: -50,
+    transition: {
+      delay: 0.5,
+      type: "tween",
+    },
+  },
+};
+
+const infoVarient = {
+  hover: {
+    opacity: 1,
+    transition: {
+      delay: 0.5,
+      type: "tween",
+    },
   },
 };
 
@@ -136,9 +181,18 @@ function Home() {
                   .slice(offset * index, offset * index + offset)
                   .map((movie) => (
                     <Box
+                      variants={BoxVarient}
+                      whileHover="hover"
+                      initial="normal"
+                      transition={{ type: "tween" }}
                       key={movie.id}
                       bgPhoto={makeImgPath(movie.backdrop_path, "w500")}
-                    />
+                    >
+                      {/* 부모에게 있는 whilehover 같은 props는 자동적으로 자식에게 상속됨 */}
+                      <Info variants={infoVarient}>
+                        <h4>{movie.title}</h4>
+                      </Info>
+                    </Box>
                   ))}
               </Row>
             </AnimatePresence>
