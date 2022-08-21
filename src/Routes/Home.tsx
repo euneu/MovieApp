@@ -2,6 +2,8 @@ import { useQuery } from "react-query";
 import styled from "styled-components";
 import { getMovies, IGetMovieResult } from "../api";
 import { makeImgPath } from "../utils";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 
 const Wrapper = styled.div`
   background-color: black;
@@ -35,12 +37,49 @@ const Overview = styled.p`
   width: 50%;
 `;
 
+const Slider = styled(motion.div)`
+  position: relative;
+  top: -150px;
+`;
+
+const Row = styled(motion.div)`
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  position: absolute;
+  width: 100%;
+`;
+
+const Box = styled(motion.div)`
+  background-color: white;
+  font-size: 20px;
+  color: black;
+  height: 200px;
+`;
+
+// window.outerWidth : 브라우저 전체의 너비
+// window.outerHeight : 브라우저 전체의 높이
+// window.innerWidth : 브라우저 화면의 너비
+// window.innerHeight : 브라우저 화면의 높이
+const rowVariants = {
+  hidden: {
+    x: window.outerWidth,
+  },
+  visible: {
+    x: 0,
+  },
+  exit: {
+    x: -window.outerWidth,
+  },
+};
+
 function Home() {
   const { data, isLoading } = useQuery<IGetMovieResult>(
     ["movies", "nowPlaying"],
     getMovies
   );
-  console.log(data, isLoading);
+  const [index, setIndex] = useState(0);
+  const increaseIndex = () => setIndex((prev) => prev + 1);
   return (
     <Wrapper>
       {isLoading ? (
@@ -48,10 +87,30 @@ function Home() {
       ) : (
         <>
           {/* 어떠한 이유에서 data가 존재하지 않아 backdrop_path가 undefined라면 그냥 ""<-이걸 보내 */}
-          <Banner bgPhoto={makeImgPath(data?.results[0].backdrop_path || "")}>
+          <Banner
+            onClick={increaseIndex}
+            bgPhoto={makeImgPath(data?.results[0].backdrop_path || "")}
+          >
             <Title>{data?.results[0].title}</Title>
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
+          <Slider>
+            <AnimatePresence>
+              {/* ⭐ key가 바뀌면 새로운 Row가 생겼다고 인식함 */}
+              <Row
+                variants={rowVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ type: "tween", duration: 1 }}
+                key={index}
+              >
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <Box key={i}>{i}</Box>
+                ))}
+              </Row>
+            </AnimatePresence>
+          </Slider>
         </>
       )}
     </Wrapper>
