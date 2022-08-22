@@ -2,7 +2,7 @@ import { useQuery } from "react-query";
 import styled from "styled-components";
 import { getMovies, IGetMovieResult } from "../api";
 import { makeImgPath } from "../utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll } from "framer-motion";
 import { useState } from "react";
 import { useMatch, useNavigate, PathMatch } from "react-router-dom";
 
@@ -83,6 +83,49 @@ const Info = styled(motion.div)`
   }
 `;
 
+const Overlay = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+`;
+
+const BigMovie = styled(motion.div)`
+  position: absolute;
+  width: 40vw;
+  height: 80vh;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  border-radius: 15px;
+  overflow: hidden;
+  background-color: ${(props) => props.theme.black.lighter};
+`;
+
+const BigCover = styled.div`
+  width: 100%;
+  background-size: cover;
+  background-position: center center;
+  height: 400px;
+`;
+
+const BigTitle = styled.h3`
+  color: ${(props) => props.theme.white.lighter};
+  padding: 10px;
+  font-size: 36px;
+  position: relative;
+  top: -60px;
+`;
+
+const BigOverview = styled.p`
+  padding: 20px;
+  color: ${(props) => props.theme.white.lighter};
+  position: relative;
+  top: -60px;
+`;
+
 // window.outerWidth : 브라우저 전체의 너비
 // window.outerHeight : 브라우저 전체의 높이
 // window.innerWidth : 브라우저 화면의 너비
@@ -131,7 +174,7 @@ function Home() {
   const navigate = useNavigate();
   // route가 url에 위치하면 데이터가 존재 없으면 null
   const bigMovieMatch: PathMatch<string> | null = useMatch("/movies/:movieId");
-  console.log(bigMovieMatch);
+  const { scrollY } = useScroll();
   const { data, isLoading } = useQuery<IGetMovieResult>(
     ["movies", "nowPlaying"],
     getMovies
@@ -152,6 +195,14 @@ function Home() {
   const onBoxClicked = (movieId: number) => {
     navigate(`/movies/${movieId}`);
   };
+  const onOverlayClick = () => navigate(-1);
+  // ⭐ 슬라이더에서 클릭한 영화 정보 -> 이 정보로 정보 모달창을 채울 것
+  const clickedMovie =
+    bigMovieMatch?.params.movieId &&
+    data?.results.find(
+      (movie) => String(movie.id) === bigMovieMatch.params.movieId
+    );
+  console.log(clickedMovie);
   return (
     <Wrapper>
       {isLoading ? (
@@ -212,19 +263,35 @@ function Home() {
           <AnimatePresence>
             {/* bigMovieMatch가 존재하면 나타나도록 */}
             {bigMovieMatch ? (
-              <motion.div
-                layoutId={bigMovieMatch.params.movieId}
-                style={{
-                  position: "absolute",
-                  width: "40vw",
-                  height: "80vh",
-                  backgroundColor: "red",
-                  top: 10,
-                  left: 0,
-                  right: 20,
-                  margin: "0 auto",
-                }}
-              />
+              <>
+                <Overlay
+                  onClick={onOverlayClick}
+                  exit={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                />
+                <BigMovie
+                  style={{
+                    // 스크롤 값으로 박스를 고정
+                    top: scrollY.get() + 100,
+                  }}
+                  layoutId={bigMovieMatch.params.movieId}
+                >
+                  {clickedMovie && (
+                    <>
+                      <BigCover
+                        style={{
+                          backgroundImage: `linear-gradient(to top, black, transparent), url(${makeImgPath(
+                            clickedMovie.backdrop_path,
+                            "w500"
+                          )})`,
+                        }}
+                      />
+                      <BigTitle>{clickedMovie.title}</BigTitle>
+                      <BigOverview>{clickedMovie.overview}</BigOverview>
+                    </>
+                  )}
+                </BigMovie>
+              </>
             ) : null}
           </AnimatePresence>
         </>
