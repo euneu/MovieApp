@@ -4,7 +4,7 @@ import { NumberLiteralType } from "typescript";
 const API_KEY = "4a648eb924ccac5ff6d4e455936456fd";
 const BASE_PATH = "https://api.themoviedb.org/3";
 
-interface IMovie {
+export interface IMovie {
   id: number;
   backdrop_path: string;
   overview: string;
