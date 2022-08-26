@@ -44,9 +44,9 @@ const Slider = styled(motion.div)`
 `;
 
 const Row = styled(motion.div)`
-  padding: 10px;
+  padding: 0px 60px;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 5px;
   position: absolute;
   width: 100%;
@@ -59,7 +59,7 @@ const Box = styled(motion.div)<{ bgPhoto: string }>`
   background-image: url(${(props) => props.bgPhoto});
   background-size: cover;
   background-position: center center;
-  height: 200px;
+  height: 500px;
   cursor: pointer;
   &:first-child {
     transform-origin: center left;
@@ -67,6 +67,30 @@ const Box = styled(motion.div)<{ bgPhoto: string }>`
   &:last-child {
     transform-origin: center right;
   }
+`;
+
+const BtnBox = styled(motion.div)`
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 50px;
+  height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+
+  &:hover {
+    svg {
+      transform: scale(1.3);
+    }
+  }
+`;
+
+const Svg = styled(motion.svg)`
+  padding-right: 10px;
+  fill: white;
+  transition: all 0.5s;
 `;
 
 const Info = styled(motion.div)`
@@ -150,7 +174,7 @@ const BoxVarient = {
     scale: 1.3,
     y: -50,
     transition: {
-      delay: 0.5,
+      delay: 0.3,
       type: "tween",
     },
   },
@@ -167,11 +191,13 @@ const infoVarient = {
 };
 
 // ⭐ 한번에 보여주고 싶은 영화의 수
-const offset = 6;
+const offset = 5;
 
 function Home() {
   // 원하는 url로 이동할 수 있음
   const navigate = useNavigate();
+  //화면 크기의 변화를 감지하는 hook
+  const width = useWindowDimensions();
   // route가 url에 위치하면 데이터가 존재 없으면 null
   const bigMovieMatch: PathMatch<string> | null = useMatch("/movies/:movieId");
   const { scrollY } = useScroll();
@@ -249,7 +275,7 @@ function Home() {
                       transition={{ type: "tween" }}
                       onClick={() => onBoxClicked(movie.id)}
                       key={movie.id}
-                      bgPhoto={makeImgPath(movie.backdrop_path, "w500")}
+                      bgPhoto={makeImgPath(movie.poster_path, "w500")}
                     >
                       {/* 부모에게 있는 whilehover 같은 props는 자동적으로 자식에게 상속됨 */}
                       <Info variants={infoVarient}>
@@ -257,6 +283,15 @@ function Home() {
                       </Info>
                     </Box>
                   ))}
+
+                <BtnBox>
+                  <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path
+                      d="m14.707 11.293-4-4A1 1 0 0 0 9 8v8a1 1 0 0 0 1.707.707l4-4a1 1 0 0 0 0-1.414z"
+                      data-name="Right"
+                    />
+                  </Svg>
+                </BtnBox>
               </Row>
             </AnimatePresence>
           </Slider>
