@@ -44,7 +44,7 @@ const Slider = styled(motion.div)`
 `;
 
 const Row = styled(motion.div)`
-  padding: 0px 60px;
+  padding: 5px;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 5px;
@@ -70,27 +70,28 @@ const Box = styled(motion.div)<{ bgPhoto: string }>`
 `;
 
 const BtnBox = styled(motion.div)`
+  background-color: rgba(0, 0, 0, 0);
   position: absolute;
-  right: 0;
-  top: 0;
   width: 50px;
-  height: 500px;
+  height: 510px;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 5;
+  transition: all 0.3s ease 0s;
 
   &:hover {
+    background-color: rgba(0, 0, 0, 1);
     svg {
       transform: scale(1.3);
+      fill: rgb(255, 255, 255, 1);
     }
   }
 `;
 
 const Svg = styled(motion.svg)`
   padding-right: 10px;
-  fill: white;
-  transition: all 0.5s;
+  fill: rgb(255, 255, 255, 0);
 `;
 
 const Info = styled(motion.div)`
@@ -155,15 +156,15 @@ const BigOverview = styled.p`
 // window.innerWidth : 브라우저 화면의 너비
 // window.innerHeight : 브라우저 화면의 높이
 const rowVariants = {
-  hidden: {
-    x: window.outerWidth + 5,
-  },
+  hidden: (direction: boolean) => ({
+    x: direction ? -window.innerWidth - 5 : window.innerWidth + 5,
+  }),
   visible: {
     x: 0,
   },
-  exit: {
-    x: -window.outerWidth - 5,
-  },
+  exit: (direction: boolean) => ({
+    x: direction ? window.innerWidth + 5 : -window.innerWidth - 5,
+  }),
 };
 
 const BoxVarient = {
@@ -190,14 +191,9 @@ const infoVarient = {
   },
 };
 
-// ⭐ 한번에 보여주고 싶은 영화의 수
-const offset = 5;
-
 function Home() {
   // 원하는 url로 이동할 수 있음
   const navigate = useNavigate();
-  //화면 크기의 변화를 감지하는 hook
-  const width = useWindowDimensions();
   // route가 url에 위치하면 데이터가 존재 없으면 null
   const bigMovieMatch: PathMatch<string> | null = useMatch("/movies/:movieId");
   const { scrollY } = useScroll();
@@ -205,30 +201,62 @@ function Home() {
     ["movies", "nowPlaying"],
     getMovies
   );
+
+  // ⭐ 한번에 보여주고 싶은 영화의 수
+  const offset = 5;
+
+  //슬라이드 다음 페이지 넘기기 위한 인덱스
+  // index는 슬라이드 하나를 말함
   const [index, setIndex] = useState(0);
-  const increaseIndex = () => {
+
+  //슬라이드 방향
+  // false는 다음 true는 이전
+  const [direction, setDirection] = useState(true);
+
+  //인덱스 증가, 감소 버튼을 여러번 눌렀을 때 이상한 gap이 생기는 걸 막아줌
+  // 즉 슬라이드 내에 이동중인 애니메이션이 끝났는지 확인
+  const [leaving, setLeaving] = useState(false);
+  const toggleLeaving = () => setLeaving((prev) => !prev);
+
+  // 인덱스 증가, 다음 슬라이드로
+  const nextIndex = () => {
     if (data) {
+      //애니메이션 아직 안 끝났음
       if (leaving) return;
       toggleLeaving();
+
       // ⭐ 보여줄 영화 끝났는데 인덱스가 넘어가는 것을 방지하려고
       const totalMovies = data.results.length - 1;
       const maxIndex = Math.floor(totalMovies / offset) - 1; //내림
       setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+      setDirection(() => false);
     }
   };
-  const toggleLeaving = () => setLeaving((prev) => !prev);
-  const [leaving, setLeaving] = useState(false);
+
+  //인덱스 감소, 다음 슬라이드로
+  const prevIndex = () => {
+    if (data) {
+      if (leaving) return;
+      toggleLeaving();
+
+      const totalMovies = data.results.length - 1;
+      const maxIndex = Math.floor(totalMovies / offset) - 1; //내림
+      setIndex((prev) => (prev === 0 ? maxIndex : prev - 1));
+      setDirection(() => true);
+    }
+  };
+
   const onBoxClicked = (movieId: number) => {
     navigate(`/movies/${movieId}`);
   };
   const onOverlayClick = () => navigate(-1);
+
   // ⭐ 슬라이더에서 클릭한 영화 정보 -> 이 정보로 정보 모달창을 채울 것
   const clickedMovie =
     bigMovieMatch?.params.movieId &&
     data?.results.find(
       (movie) => String(movie.id) === bigMovieMatch.params.movieId
     );
-  console.log(clickedMovie);
   return (
     <Wrapper>
       {isLoading ? (
@@ -236,14 +264,19 @@ function Home() {
       ) : (
         <>
           {/* 어떠한 이유에서 data가 존재하지 않아 backdrop_path가 undefined라면 그냥 ""<-이걸 보내 */}
-          <Banner
-            onClick={increaseIndex}
-            bgPhoto={makeImgPath(data?.results[0].backdrop_path || "")}
-          >
+          <Banner bgPhoto={makeImgPath(data?.results[0].backdrop_path || "")}>
             <Title>{data?.results[0].title}</Title>
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
           <Slider>
+            <BtnBox style={{ left: 0 }} onClick={prevIndex}>
+              <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path
+                  d="M14.383 7.076a1 1 0 0 0-1.09.217l-4 4a1 1 0 0 0 0 1.414l4 4A1 1 0 0 0 15 16V8a1 1 0 0 0-.617-.924z"
+                  data-name="Left"
+                />
+              </Svg>
+            </BtnBox>
             {/* onExitComplete exit가 끝난 후 실행됨 
                 ⭐ 클릭을 여러번 하면 슬라이더에 이상한 gap이 생기는 현상을 막기 위함
                 initial = {false}
@@ -251,10 +284,15 @@ function Home() {
                 ⭐ 새로 고침해서 랜더링할 때 슬라이더가 고정되어있지 않고 오른쪽에서 나타나는 현상 막기 위함
             */}
 
-            <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+            <AnimatePresence
+              initial={false}
+              onExitComplete={toggleLeaving}
+              custom={direction}
+            >
               {/* ⭐ key가 바뀌면 새로운 Row가 생겼다고 인식함 */}
               <Row
                 variants={rowVariants}
+                custom={direction}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
@@ -283,17 +321,16 @@ function Home() {
                       </Info>
                     </Box>
                   ))}
-
-                <BtnBox>
-                  <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                    <path
-                      d="m14.707 11.293-4-4A1 1 0 0 0 9 8v8a1 1 0 0 0 1.707.707l4-4a1 1 0 0 0 0-1.414z"
-                      data-name="Right"
-                    />
-                  </Svg>
-                </BtnBox>
               </Row>
             </AnimatePresence>
+            <BtnBox style={{ right: 0 }} onClick={nextIndex}>
+              <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path
+                  d="m14.707 11.293-4-4A1 1 0 0 0 9 8v8a1 1 0 0 0 1.707.707l4-4a1 1 0 0 0 0-1.414z"
+                  data-name="Right"
+                />
+              </Svg>
+            </BtnBox>
           </Slider>
           <AnimatePresence>
             {/* bigMovieMatch가 존재하면 나타나도록 */}
