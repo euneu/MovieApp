@@ -47,6 +47,7 @@ export interface IGetMovieDetail {
   video: boolean;
   vote_average: number;
   vote_count: number;
+  children: React.ReactNode | React.ReactNode[];
 }
 interface BelongsToCollection {
   id: number;

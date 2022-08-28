@@ -38,7 +38,8 @@ const Box = styled(motion.div)<{ bgphoto: string }>`
   }
 `;
 
-const BtnBox = styled(motion.div)`
+const BtnBox = styled(motion.button)`
+  border: none;
   background-color: rgba(0, 0, 0, 0);
   position: absolute;
   width: 50px;
@@ -50,6 +51,7 @@ const BtnBox = styled(motion.div)`
   transition: all 0.3s ease 0s;
 
   &:hover {
+    cursor: pointer;
     background-color: rgba(0, 0, 0, 1);
     svg {
       transform: scale(1.3);

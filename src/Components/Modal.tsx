@@ -34,19 +34,39 @@ const BigCover = styled.div`
   height: 400px;
 `;
 
+const BigText = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
 const BigTitle = styled.h3`
+  text-shadow: rgb(0, 0, 0, 0.6) 1px 1px 10px;
   color: ${(props) => props.theme.white.lighter};
   padding: 10px;
   font-size: 36px;
-  position: relative;
-  top: -60px;
+  span {
+    font-weight: 100;
+    margin-left: 10px;
+    font-size: 17px;
+  }
 `;
 
 const BigOverview = styled.p`
   padding: 20px;
   color: ${(props) => props.theme.white.lighter};
-  position: relative;
-  top: -60px;
+`;
+
+const BigSpans = styled.div`
+  margin: 10px;
+`;
+
+const BigSpan = styled.span`
+  font-size: 15px;
+  padding: 5px;
+  border-radius: 6px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  margin-right: 10px;
 `;
 
 interface IModal {
@@ -101,8 +121,23 @@ function Modal({ modal }: IModal) {
                       )})`,
                     }}
                   />
-                  <BigTitle>{modalMovie.title}</BigTitle>
-                  <BigOverview>{modalMovie.overview}</BigOverview>
+                  <BigText>
+                    <BigTitle>
+                      {modalMovie.title}
+                      <span>⭐ {modalMovie.vote_average.toFixed(1)} 점</span>
+                      <span>🎬 {modalMovie.runtime} 분</span>
+                    </BigTitle>
+
+                    <BigSpans>
+                      <BigSpan>개봉</BigSpan> {modalMovie.release_date}
+                    </BigSpans>
+                    <BigSpans>
+                      {modalMovie.genres.map((genre) => (
+                        <BigSpan>{genre.name}</BigSpan>
+                      ))}
+                    </BigSpans>
+                    <BigOverview>{modalMovie.overview}</BigOverview>
+                  </BigText>
                 </>
               )}
             </BigMovie>
