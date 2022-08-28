@@ -3,7 +3,7 @@ import { makeImgPath } from "../utils";
 import { motion, AnimatePresence, useScroll } from "framer-motion";
 import { useState } from "react";
 import { useMatch, useNavigate, PathMatch } from "react-router-dom";
-import { IGetMovieResult } from "../api";
+import Modal from "./Modal";
 
 const Slide = styled(motion.div)`
   position: relative;
@@ -77,49 +77,6 @@ const Info = styled(motion.div)`
   }
 `;
 
-const Overlay = styled(motion.div)`
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-`;
-
-const BigMovie = styled(motion.div)`
-  position: absolute;
-  width: 40vw;
-  height: 80vh;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  border-radius: 15px;
-  overflow: hidden;
-  background-color: ${(props) => props.theme.black.lighter};
-`;
-
-const BigCover = styled.div`
-  width: 100%;
-  background-size: cover;
-  background-position: center center;
-  height: 400px;
-`;
-
-const BigTitle = styled.h3`
-  color: ${(props) => props.theme.white.lighter};
-  padding: 10px;
-  font-size: 36px;
-  position: relative;
-  top: -60px;
-`;
-
-const BigOverview = styled.p`
-  padding: 20px;
-  color: ${(props) => props.theme.white.lighter};
-  position: relative;
-  top: -60px;
-`;
-
 const rowVariants = {
   hidden: (direction: boolean) => ({
     x: direction ? -window.innerWidth - 5 : window.innerWidth + 5,
@@ -165,15 +122,11 @@ interface IMovie {
 }
 
 interface ISlide {
-  data: IMovie[];
+  movies: IMovie[];
 }
 
-function Slider({ data }: ISlide) {
-  // 원하는 url로 이동할 수 있음
+function Slider({ movies }: ISlide) {
   const navigate = useNavigate();
-  // route가 url에 위치하면 데이터가 존재 없으면 null
-  const bigMovieMatch: PathMatch<string> | null = useMatch("/movies/:movieId");
-  const { scrollY } = useScroll();
   // ⭐ 한번에 보여주고 싶은 영화의 수
   const offset = 6;
 
@@ -192,13 +145,13 @@ function Slider({ data }: ISlide) {
 
   // 인덱스 증가, 다음 슬라이드로
   const nextIndex = () => {
-    if (data) {
+    if (movies) {
       //애니메이션 아직 안 끝났음
       if (leaving) return;
       toggleLeaving();
 
       // ⭐ 보여줄 영화 끝났는데 인덱스가 넘어가는 것을 방지하려고
-      const totalMovies = data.length - 1;
+      const totalMovies = movies.length - 1;
       const maxIndex = Math.floor(totalMovies / offset) - 1; //내림
       setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
       setDirection(false);
@@ -207,26 +160,21 @@ function Slider({ data }: ISlide) {
 
   //인덱스 감소, 다음 슬라이드로
   const prevIndex = () => {
-    if (data) {
+    if (movies) {
       if (leaving) return;
       toggleLeaving();
 
-      const totalMovies = data.length - 1;
+      const totalMovies = movies.length - 1;
       const maxIndex = Math.floor(totalMovies / offset) - 1; //내림
       setIndex((prev) => (prev === 0 ? maxIndex : prev - 1));
       setDirection(true);
     }
   };
 
+  // 영화 리스트 상세 정보
   const onBoxClicked = (movieId: number) => {
     navigate(`/movies/${movieId}`);
   };
-  const onOverlayClick = () => navigate(-1);
-
-  // ⭐ 슬라이더에서 클릭한 영화 정보 -> 이 정보로 정보 모달창을 채울 것
-  const clickedMovie =
-    bigMovieMatch?.params.movieId &&
-    data?.find((movie) => String(movie.id) === bigMovieMatch.params.movieId);
   return (
     <>
       <Slide>
@@ -254,8 +202,8 @@ function Slider({ data }: ISlide) {
           >
             {/* ⭐ 메인 화면에 사용한 영화 제외 하려면 slice(1) 
         index는 페이지, offset는 보여주고 싶은 영화 개수*/}
-            {data &&
-              data
+            {movies &&
+              movies
                 .slice(offset * index, offset * index + offset)
                 .map((movie) => (
                   <Box
@@ -293,41 +241,6 @@ function Slider({ data }: ISlide) {
           </Svg>
         </BtnBox>
       </Slide>
-      {/* //상세페이지 모달창 */}
-      <AnimatePresence>
-        {/* bigMovieMatch가 존재하면 나타나도록 */}
-        {bigMovieMatch ? (
-          <>
-            <Overlay
-              onClick={onOverlayClick}
-              exit={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            />
-            <BigMovie
-              style={{
-                // 스크롤 값으로 박스를 고정
-                top: scrollY.get() + 100,
-              }}
-              layoutId={bigMovieMatch.params.movieId}
-            >
-              {clickedMovie && (
-                <>
-                  <BigCover
-                    style={{
-                      backgroundImage: `linear-gradient(to top, black, transparent), url(${makeImgPath(
-                        clickedMovie.backdrop_path,
-                        "w500"
-                      )})`,
-                    }}
-                  />
-                  <BigTitle>{clickedMovie.title}</BigTitle>
-                  <BigOverview>{clickedMovie.overview}</BigOverview>
-                </>
-              )}
-            </BigMovie>
-          </>
-        ) : null}
-      </AnimatePresence>
     </>
   );
 }

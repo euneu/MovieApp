@@ -1,14 +1,16 @@
 import { useQuery } from "react-query";
 import styled from "styled-components";
 import {
+  getNowMovie,
+  getPopularMovie,
+  getTopRatedMovie,
+  getUpComingMovie,
   IGetMovieResult,
-  nowPlayMovie,
-  popularMovie,
-  topRatedMovie,
-  upComingMovie,
 } from "../api";
 import { makeImgPath } from "../utils";
 import Slider from "../Components/Slider";
+import { PathMatch, useMatch, useNavigate } from "react-router-dom";
+import Modal from "../Components/Modal";
 
 const Wrapper = styled.div`
   background-color: black;
@@ -57,21 +59,25 @@ const SliderTitle = styled.h3`
 // window.innerHeight : 브라우저 화면의 높이
 
 function Home() {
+  // 원하는 url로 이동할 수 있음
+  const navigate = useNavigate();
+  // route가 url에 위치하면 데이터가 존재 없으면 null
+  const bigMovieMatch: PathMatch<string> | null = useMatch("/movies/:movieId");
+
   const { data: nowPlaying, isLoading: nowLoad } = useQuery<IGetMovieResult>(
     ["movies", "nowPlaying"],
-    nowPlayMovie
+    getNowMovie
   );
 
   const { data: popularPlaying, isLoading: popularLoad } =
-    useQuery<IGetMovieResult>(["movies", "popularPlaying"], popularMovie);
+    useQuery<IGetMovieResult>(["movies", "popularPlaying"], getPopularMovie);
 
   const { data: TopRatedPlaying, isLoading: topRatedLoad } =
-    useQuery<IGetMovieResult>(["movies", "topRatedPlaying"], topRatedMovie);
+    useQuery<IGetMovieResult>(["movies", "topRatedPlaying"], getTopRatedMovie);
 
   const { data: upComingPlaying, isLoading: upComingLoad } =
-    useQuery<IGetMovieResult>(["movies", "upComingPlaying"], upComingMovie);
+    useQuery<IGetMovieResult>(["movies", "upComingPlaying"], getUpComingMovie);
 
-  console.log(popularPlaying);
   return (
     <Wrapper>
       {nowLoad && popularLoad && topRatedLoad && upComingLoad ? (
@@ -89,17 +95,18 @@ function Home() {
           </Banner>
           <SliderContainer>
             <SliderTitle>상영 중인 영화</SliderTitle>
-            <Slider data={nowPlaying?.results!} />
+            <Slider movies={nowPlaying?.results!} />
 
             <SliderTitle>인기 영화</SliderTitle>
-            <Slider data={popularPlaying?.results!} />
+            <Slider movies={popularPlaying?.results!} />
 
             <SliderTitle>평점 높은 영화</SliderTitle>
-            <Slider data={TopRatedPlaying?.results!} />
+            <Slider movies={TopRatedPlaying?.results!} />
 
             <SliderTitle>개봉 예정 영화</SliderTitle>
-            <Slider data={upComingPlaying?.results!} />
+            <Slider movies={upComingPlaying?.results!} />
           </SliderContainer>
+          <Modal modal={bigMovieMatch?.params.movieId!} />
         </>
       )}
     </Wrapper>
