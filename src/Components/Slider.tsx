@@ -7,23 +7,25 @@ import { IGetMovieResult } from "../api";
 
 const Slide = styled(motion.div)`
   position: relative;
-  top: -150px;
+  height: 50vh;
+  margin-bottom: 10vh;
 `;
 
 const Row = styled(motion.div)`
   padding: 5px;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 5px;
   position: absolute;
   width: 100%;
+  padding: 0 5px;
 `;
 
-const Box = styled(motion.div)<{ bgPhoto: string }>`
+const Box = styled(motion.div)<{ bgphoto: string }>`
   background-color: white;
   font-size: 20px;
   color: black;
-  background-image: url(${(props) => props.bgPhoto});
+  background-image: url(${(props) => props.bgphoto});
   background-size: cover;
   background-position: center center;
   height: 500px;
@@ -65,7 +67,7 @@ const Info = styled(motion.div)`
   padding: 20px;
   width: 100%;
   bottom: 0;
-  background-color: ${(props) => props.theme.black.lighter};
+  background-color: rgba(0, 0, 0, 0.5);
   color: white;
   opacity: 0;
   position: absolute;
@@ -154,8 +156,16 @@ const infoVarient = {
   },
 };
 
+interface IMovie {
+  id: number;
+  backdrop_path: string;
+  overview: string;
+  poster_path: string;
+  title: string;
+}
+
 interface ISlide {
-  data?: IGetMovieResult;
+  data: IMovie[];
 }
 
 function Slider({ data }: ISlide) {
@@ -165,7 +175,7 @@ function Slider({ data }: ISlide) {
   const bigMovieMatch: PathMatch<string> | null = useMatch("/movies/:movieId");
   const { scrollY } = useScroll();
   // ⭐ 한번에 보여주고 싶은 영화의 수
-  const offset = 5;
+  const offset = 6;
 
   //슬라이드 다음 페이지 넘기기 위한 인덱스
   // index는 슬라이드 하나를 말함
@@ -188,10 +198,10 @@ function Slider({ data }: ISlide) {
       toggleLeaving();
 
       // ⭐ 보여줄 영화 끝났는데 인덱스가 넘어가는 것을 방지하려고
-      const totalMovies = data.results.length - 1;
+      const totalMovies = data.length - 1;
       const maxIndex = Math.floor(totalMovies / offset) - 1; //내림
       setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
-      setDirection(() => false);
+      setDirection(false);
     }
   };
 
@@ -201,10 +211,10 @@ function Slider({ data }: ISlide) {
       if (leaving) return;
       toggleLeaving();
 
-      const totalMovies = data.results.length - 1;
+      const totalMovies = data.length - 1;
       const maxIndex = Math.floor(totalMovies / offset) - 1; //내림
       setIndex((prev) => (prev === 0 ? maxIndex : prev - 1));
-      setDirection(() => true);
+      setDirection(true);
     }
   };
 
@@ -216,20 +226,10 @@ function Slider({ data }: ISlide) {
   // ⭐ 슬라이더에서 클릭한 영화 정보 -> 이 정보로 정보 모달창을 채울 것
   const clickedMovie =
     bigMovieMatch?.params.movieId &&
-    data?.results.find(
-      (movie) => String(movie.id) === bigMovieMatch.params.movieId
-    );
+    data?.find((movie) => String(movie.id) === bigMovieMatch.params.movieId);
   return (
     <>
       <Slide>
-        <BtnBox style={{ left: 0 }} onClick={prevIndex}>
-          <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path
-              d="M14.383 7.076a1 1 0 0 0-1.09.217l-4 4a1 1 0 0 0 0 1.414l4 4A1 1 0 0 0 15 16V8a1 1 0 0 0-.617-.924z"
-              data-name="Left"
-            />
-          </Svg>
-        </BtnBox>
         {/* onExitComplete exit가 끝난 후 실행됨 
     ⭐ 클릭을 여러번 하면 슬라이더에 이상한 gap이 생기는 현상을 막기 위함
     initial = {false}
@@ -254,28 +254,36 @@ function Slider({ data }: ISlide) {
           >
             {/* ⭐ 메인 화면에 사용한 영화 제외 하려면 slice(1) 
         index는 페이지, offset는 보여주고 싶은 영화 개수*/}
-            {data?.results
-              .slice(1)
-              .slice(offset * index, offset * index + offset)
-              .map((movie) => (
-                <Box
-                  layoutId={movie.id + ""}
-                  variants={BoxVarient}
-                  whileHover="hover"
-                  initial="normal"
-                  transition={{ type: "tween" }}
-                  onClick={() => onBoxClicked(movie.id)}
-                  key={movie.id}
-                  bgPhoto={makeImgPath(movie.poster_path, "w500")}
-                >
-                  {/* 부모에게 있는 whilehover 같은 props는 자동적으로 자식에게 상속됨 */}
-                  <Info variants={infoVarient}>
-                    <h4>{movie.title}</h4>
-                  </Info>
-                </Box>
-              ))}
+            {data &&
+              data
+                .slice(offset * index, offset * index + offset)
+                .map((movie) => (
+                  <Box
+                    layoutId={movie.id + ""}
+                    variants={BoxVarient}
+                    whileHover="hover"
+                    initial="normal"
+                    transition={{ type: "tween" }}
+                    onClick={() => onBoxClicked(movie.id)}
+                    key={movie.id}
+                    bgphoto={makeImgPath(movie.poster_path, "w500")}
+                  >
+                    {/* 부모에게 있는 whilehover 같은 props는 자동적으로 자식에게 상속됨 */}
+                    <Info variants={infoVarient}>
+                      <h4>{movie.title}</h4>
+                    </Info>
+                  </Box>
+                ))}
           </Row>
         </AnimatePresence>
+        <BtnBox style={{ left: 0 }} onClick={prevIndex}>
+          <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path
+              d="M14.383 7.076a1 1 0 0 0-1.09.217l-4 4a1 1 0 0 0 0 1.414l4 4A1 1 0 0 0 15 16V8a1 1 0 0 0-.617-.924z"
+              data-name="Left"
+            />
+          </Svg>
+        </BtnBox>
         <BtnBox style={{ right: 0 }} onClick={nextIndex}>
           <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
             <path

@@ -1,11 +1,14 @@
+import { createRoot } from "react-dom/client";
 import React from "react";
-import ReactDOM from "react-dom";
 import { RecoilRoot } from "recoil";
 import { ThemeProvider } from "styled-components";
 import App from "./App";
 import { createGlobalStyle } from "styled-components";
 import { theme } from "./theme";
 import { QueryClient, QueryClientProvider } from "react-query";
+
+const container = document.getElementById("root") as HTMLElement;
+const root = createRoot(container);
 
 const GlobalStyle = createGlobalStyle`
 @font-face {
@@ -81,7 +84,7 @@ a {
 
 const client = new QueryClient();
 
-ReactDOM.render(
+root.render(
   <React.StrictMode>
     <RecoilRoot>
       <QueryClientProvider client={client}>
@@ -91,6 +94,5 @@ ReactDOM.render(
         </ThemeProvider>
       </QueryClientProvider>
     </RecoilRoot>
-  </React.StrictMode>,
-  document.getElementById("root")
+  </React.StrictMode>
 );
