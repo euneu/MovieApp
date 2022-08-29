@@ -10,6 +10,8 @@ export interface IMovie {
   overview: string;
   poster_path: string;
   title: string;
+  //name은 tv쇼 이름
+  name?: string;
 }
 export interface IGetMovieResult {
   datas: {
@@ -78,22 +80,22 @@ interface SpokenLanguage {
   name: string;
 }
 
-//상영 중인 영화
-export function getNowMovie() {
+//상영 중인 상영물
+export function getNow(kid: string, data: string) {
   return fetch(
-    `${BASE_PATH}/movie/now_playing?api_key=${API_KEY}&language=ko-KR&page=1&region=kr`
+    `${BASE_PATH}/${kid}/${data}?api_key=${API_KEY}&language=ko-KR&page=1&region=kr`
   ).then((response) => response.json());
 }
-//인기영화
-export function getPopularMovie() {
+//인기 있는 상영물
+export function getPopular(kid: string) {
   return fetch(
-    `${BASE_PATH}/movie/popular?api_key=${API_KEY}&language=ko-KR&page=1&region=kr`
+    `${BASE_PATH}/${kid}/popular?api_key=${API_KEY}&language=ko-KR&page=1&region=kr`
   ).then((response) => response.json());
 }
-//평점 높은 영화
-export function getTopRatedMovie() {
+//평점 높은 상영물
+export function getTopRated(kid: string) {
   return fetch(
-    `${BASE_PATH}/movie/top_rated?api_key=${API_KEY}&language=ko-KR&page=1&region=kr`
+    `${BASE_PATH}/${kid}/top_rated?api_key=${API_KEY}&language=ko-KR&page=1&region=kr`
   ).then((response) => response.json());
 }
 // 개봉 예정 영화

@@ -86,7 +86,6 @@ function Modal({ modal }: IModal) {
     // modal이 존재할 때만 쿼리 요청함
     { enabled: !!modal }
   );
-  console.log(detail);
 
   useEffect(() => {
     setModalMovie(detail);

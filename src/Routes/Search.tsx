@@ -6,6 +6,7 @@ function Search() {
   // URLSearchParams url 에서 특정 쿼리 문자열을 가져오거나 수정
   const keyword = new URLSearchParams(location.search).get("keyword");
   console.log(keyword);
+  //keyword로 api 요청 보내서 데이터 가져오고 맵핑하기
   return null;
 }
 

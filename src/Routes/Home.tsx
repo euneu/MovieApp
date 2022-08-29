@@ -1,9 +1,9 @@
 import { useQuery } from "react-query";
 import styled from "styled-components";
 import {
-  getNowMovie,
-  getPopularMovie,
-  getTopRatedMovie,
+  getNow,
+  getPopular,
+  getTopRated,
   getUpComingMovie,
   IGetMovieResult,
 } from "../api";
@@ -12,18 +12,18 @@ import Slider from "../Components/Slider";
 import { PathMatch, useMatch, useNavigate } from "react-router-dom";
 import Modal from "../Components/Modal";
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   background-color: black;
 `;
 
-const Loader = styled.div`
+export const Loader = styled.div`
   height: 20vh;
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 
-const Banner = styled.div<{ bgphoto: string }>`
+export const Banner = styled.div<{ bgphoto: string }>`
   height: 80vh;
   display: flex;
   flex-direction: column;
@@ -34,21 +34,21 @@ const Banner = styled.div<{ bgphoto: string }>`
   background-size: cover;
 `;
 
-const Title = styled.h2`
+export const Title = styled.h2`
   font-size: 68px;
   margin-bottom: 20px;
   text-shadow: rgb(0, 0, 0, 0.6) 1px 1px 10px;
 `;
 
-const Overview = styled.p`
+export const Overview = styled.p`
   text-shadow: rgb(0, 0, 0, 0.6) 1px 1px 10px;
   font-size: 1.3rem;
   width: 50%;
 `;
 
-const SliderContainer = styled.div``;
+export const SliderContainer = styled.div``;
 
-const SliderTitle = styled.h3`
+export const SliderTitle = styled.h3`
   padding: 0 0 10px 5px;
   font-size: 40px;
   text-shadow: rgb(0, 0, 0, 0.6) 1px 1px 10px;
@@ -62,18 +62,22 @@ function Home() {
   // 원하는 url로 이동할 수 있음
   const navigate = useNavigate();
   // route가 url에 위치하면 데이터가 존재 없으면 null
-  const bigMovieMatch: PathMatch<string> | null = useMatch("/movies/:movieId");
+  const bigMovieMatch: PathMatch<string> | null = useMatch("/movie/:Id");
 
   const { data: nowPlaying, isLoading: nowLoad } = useQuery<IGetMovieResult>(
     ["movies", "nowPlaying"],
-    getNowMovie
+    () => getNow("movie", "now_playing")
   );
 
   const { data: popularPlaying, isLoading: popularLoad } =
-    useQuery<IGetMovieResult>(["movies", "popularPlaying"], getPopularMovie);
+    useQuery<IGetMovieResult>(["movies", "popularPlaying"], () =>
+      getPopular("movie")
+    );
 
   const { data: TopRatedPlaying, isLoading: topRatedLoad } =
-    useQuery<IGetMovieResult>(["movies", "topRatedPlaying"], getTopRatedMovie);
+    useQuery<IGetMovieResult>(["movies", "topRatedPlaying"], () =>
+      getTopRated("movie")
+    );
 
   const { data: upComingPlaying, isLoading: upComingLoad } =
     useQuery<IGetMovieResult>(["movies", "upComingPlaying"], getUpComingMovie);
@@ -95,18 +99,18 @@ function Home() {
           </Banner>
           <SliderContainer>
             <SliderTitle>상영 중인 영화</SliderTitle>
-            <Slider movies={nowPlaying?.results!} />
+            <Slider movies={nowPlaying?.results!} kid="movie" />
 
             <SliderTitle>인기 영화</SliderTitle>
-            <Slider movies={popularPlaying?.results!} />
+            <Slider movies={popularPlaying?.results!} kid="movie" />
 
             <SliderTitle>평점 높은 영화</SliderTitle>
-            <Slider movies={TopRatedPlaying?.results!} />
+            <Slider movies={TopRatedPlaying?.results!} kid="movie" />
 
             <SliderTitle>개봉 예정 영화</SliderTitle>
-            <Slider movies={upComingPlaying?.results!} />
+            <Slider movies={upComingPlaying?.results!} kid="movie" />
           </SliderContainer>
-          <Modal modal={bigMovieMatch?.params.movieId!} />
+          <Modal modal={bigMovieMatch?.params.Id!} />
         </>
       )}
     </Wrapper>

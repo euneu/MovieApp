@@ -121,13 +121,15 @@ interface IMovie {
   overview: string;
   poster_path: string;
   title: string;
+  //name은 tv쇼 이름
+  name?: string;
 }
-
 interface ISlide {
   movies: IMovie[];
+  kid: string;
 }
 
-function Slider({ movies }: ISlide) {
+function Slider({ movies, kid }: ISlide) {
   const navigate = useNavigate();
   // ⭐ 한번에 보여주고 싶은 영화의 수
   const offset = 6;
@@ -174,8 +176,9 @@ function Slider({ movies }: ISlide) {
   };
 
   // 영화 리스트 상세 정보
-  const onBoxClicked = (movieId: number) => {
-    navigate(`/movies/${movieId}`);
+  const onBoxClicked = (Id: number, kid: string) => {
+    navigate(`/${kid}/${Id}`);
+    console.log(kid, Id);
   };
   return (
     <>
@@ -214,13 +217,13 @@ function Slider({ movies }: ISlide) {
                     whileHover="hover"
                     initial="normal"
                     transition={{ type: "tween" }}
-                    onClick={() => onBoxClicked(movie.id)}
+                    onClick={() => onBoxClicked(movie.id, kid)}
                     key={movie.id}
                     bgphoto={makeImgPath(movie.poster_path, "w500")}
                   >
                     {/* 부모에게 있는 whilehover 같은 props는 자동적으로 자식에게 상속됨 */}
                     <Info variants={infoVarient}>
-                      <h4>{movie.title}</h4>
+                      <h4>{kid == "tv" ? movie.name : movie.title}</h4>
                     </Info>
                   </Box>
                 ))}
