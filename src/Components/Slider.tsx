@@ -178,7 +178,6 @@ function Slider({ movies, kid }: ISlide) {
   // 영화 리스트 상세 정보
   const onBoxClicked = (Id: number, kid: string) => {
     navigate(`/${kid}/${Id}`);
-    console.log(kid, Id);
   };
   return (
     <>

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { PathMatch, useMatch, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { getMovieDetail, IGetMovieDetail, IGetTvDetail } from "../api";
+import { getMovieDetail, IGetTvDetail } from "../api";
 import { makeImgPath } from "../utils";
 
 const Overlay = styled(motion.div)`
@@ -69,28 +69,19 @@ const BigSpan = styled.span`
   margin-right: 10px;
 `;
 
-interface IModal {
+interface ITvModal {
   modal: string;
 }
 
-function Modal({ modal }: IModal) {
-  const [modalMovie, setModalMovie] = useState<IGetMovieDetail>();
+function TvModal({ modal }: ITvModal) {
   const [modalTv, setModalTv] = useState<IGetTvDetail>();
   const navigate = useNavigate();
   const { scrollY } = useScroll();
   const onOverlayClick = () => navigate(-1);
+  console.log(modalTv);
 
   // 영화 정보 가져오기
-  const { data: Moviedetail, isLoading: MoviedetailLoad } =
-    useQuery<IGetMovieDetail>(
-      ["search", "detail"],
-      () => getMovieDetail(modal, "movie"),
-      // modal이 존재할 때만 쿼리 요청함
-      { enabled: !!modal }
-    );
-
-  //tv쇼 정보 가져오기
-  const { data: Tvdetail, isLoading: TvdetailLoad } = useQuery<IGetTvDetail>(
+  const { data: detail, isLoading: detailLoad } = useQuery<IGetTvDetail>(
     ["search", "detail"],
     () => getMovieDetail(modal, "tv"),
     // modal이 존재할 때만 쿼리 요청함
@@ -98,9 +89,8 @@ function Modal({ modal }: IModal) {
   );
 
   useEffect(() => {
-    setModalMovie(Moviedetail);
-    setModalTv(Tvdetail);
-  }, [Moviedetail, Tvdetail]);
+    setModalTv(detail);
+  }, [detail]);
 
   return (
     <>
@@ -121,35 +111,6 @@ function Modal({ modal }: IModal) {
               }}
               layoutId={modal}
             >
-              {modalMovie && (
-                <>
-                  <BigCover
-                    style={{
-                      backgroundImage: `linear-gradient(to top, black, transparent), url(${makeImgPath(
-                        modalMovie.backdrop_path,
-                        "w500"
-                      )})`,
-                    }}
-                  />
-                  <BigText>
-                    <BigTitle>
-                      {modalMovie.title}
-                      <span>⭐ {modalMovie.vote_average.toFixed(1)} 점</span>
-                      <span>🎬 {modalMovie.runtime} 분</span>
-                    </BigTitle>
-
-                    <BigSpans>
-                      <BigSpan>개봉</BigSpan> {modalMovie.release_date}
-                    </BigSpans>
-                    <BigSpans>
-                      {modalMovie.genres.map((genre) => (
-                        <BigSpan>{genre.name}</BigSpan>
-                      ))}
-                    </BigSpans>
-                    <BigOverview>{modalMovie.overview}</BigOverview>
-                  </BigText>
-                </>
-              )}
               {modalTv && (
                 <>
                   <BigCover
@@ -162,13 +123,12 @@ function Modal({ modal }: IModal) {
                   />
                   <BigText>
                     <BigTitle>
-                      {modalTv.title}
+                      {modalTv.name}
                       <span>⭐ {modalTv.vote_average.toFixed(1)} 점</span>
+                      <span>🎬 {modalTv.episode_run_time} 분</span>
                     </BigTitle>
-
-                    <BigSpans>
-                      <BigSpan>개봉</BigSpan>
-                    </BigSpans>
+                    <BigSpans>{modalTv.tagline}</BigSpans>
+                    <BigSpans>{modalTv.first_air_date}</BigSpans>
                     <BigSpans>
                       {modalTv.genres.map((genre) => (
                         <BigSpan>{genre.name}</BigSpan>
@@ -185,5 +145,4 @@ function Modal({ modal }: IModal) {
     </>
   );
 }
-
-export default Modal;
+export default TvModal;

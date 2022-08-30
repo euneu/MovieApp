@@ -20,6 +20,7 @@ import {
   SliderContainer,
   SliderTitle,
 } from "../Routes/Home";
+import TvModal from "../Components/TvModal";
 
 function Tv() {
   // 원하는 url로 이동할 수 있음
@@ -68,7 +69,7 @@ function Tv() {
             <SliderTitle>평점 높은 드라마</SliderTitle>
             <Slider movies={TopRatedPlaying?.results!} kid="tv" />
           </SliderContainer>
-          <Modal modal={bigMovieMatch?.params.Id!} />
+          <TvModal modal={bigMovieMatch?.params.Id!} />
         </>
       )}
     </Wrapper>

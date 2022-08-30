@@ -51,6 +51,50 @@ export interface IGetMovieDetail {
   vote_count: number;
   children: React.ReactNode | React.ReactNode[];
 }
+
+export interface IGetTvDetail {
+  adult: boolean;
+  backdrop_path: string;
+  created_by: [];
+  episode_run_time: [];
+  first_air_date: string;
+  genres: Igenres[];
+  homepage: string;
+  id: number;
+  in_production: boolean;
+  languages: [];
+  last_air_date: string;
+  last_episode_to_air: EpisodeToAir[];
+  name: string;
+  ext_episode_to_air: EpisodeToAir[];
+  networks: [];
+  overview: string;
+  popularity: number;
+  poster_path: string;
+  production_companies: ProductionCompany[];
+  production_countries: ProductionCountry[];
+  spoken_languages: SpokenLanguage[];
+  status: string;
+  tagline: string;
+  title: string;
+  vote_average: number;
+  vote_count: number;
+}
+
+interface EpisodeToAir {
+  air_date: string;
+  episode_number: number;
+  id: number;
+  name: string;
+  overview: string;
+  production_code: string;
+  runtime: string;
+  season_number: number;
+  show_id: number;
+  still_path: string;
+  vote_average: number;
+  vote_count: number;
+}
 interface BelongsToCollection {
   id: number;
   name: string;
@@ -105,8 +149,8 @@ export function getUpComingMovie() {
   ).then((response) => response.json());
 }
 // 영화 상세 정보
-export function getMovieDetail(movieId: string | undefined) {
-  return fetch(
-    `${BASE_PATH}/movie/${movieId}?api_key=${API_KEY}&language=ko`
-  ).then((response) => response.json());
+export function getMovieDetail(Id: string | undefined, kid: string) {
+  return fetch(`${BASE_PATH}/${kid}/${Id}?api_key=${API_KEY}&language=ko`).then(
+    (response) => response.json()
+  );
 }
