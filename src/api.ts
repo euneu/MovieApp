@@ -154,3 +154,9 @@ export function getMovieDetail(Id: string | undefined, kid: string) {
     (response) => response.json()
   );
 }
+//검색
+export function getSerchData(keyword: string | null, kid: string) {
+  return fetch(
+    `${BASE_PATH}/search/${kid}?api_key=${API_KEY}&language=ko-KR&query=${keyword}&page=1&include_adult=false&region=kr`
+  ).then((response) => response.json());
+}

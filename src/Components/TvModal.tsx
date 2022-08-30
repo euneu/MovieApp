@@ -78,7 +78,6 @@ function TvModal({ modal }: ITvModal) {
   const navigate = useNavigate();
   const { scrollY } = useScroll();
   const onOverlayClick = () => navigate(-1);
-  console.log(modalTv);
 
   // 영화 정보 가져오기
   const { data: detail, isLoading: detailLoad } = useQuery<IGetTvDetail>(

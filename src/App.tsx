@@ -10,10 +10,11 @@ function App() {
       <Header />
       <Routes>
         <Route path="/*" element={<Home />}></Route>
-        <Route path="movie/:movieId" element={<Home />}></Route>
+        <Route path="/movie/:Id" element={<Home />}></Route>
         <Route path="/tv" element={<Tv />}></Route>
-        <Route path="tv/:tvId" element={<Tv />}></Route>
+        <Route path="/tv/:Id" element={<Tv />}></Route>
         <Route path="/search" element={<Search />}></Route>
+        <Route path="/search?keyword=keyword" element={<Search />}></Route>
       </Routes>
     </BrowserRouter>
   );

@@ -28,7 +28,6 @@ function Tv() {
   // route가 url에 위치하면 데이터가 존재 없으면 null
   const bigMovieMatch: PathMatch<string> | null = useMatch("/tv/:Id");
 
-  console.log(bigMovieMatch);
   const { data: nowPlaying, isLoading: nowLoad } = useQuery<IGetMovieResult>(
     ["movies", "nowPlaying"],
     () => getNow("tv", "on_the_air")
@@ -60,13 +59,13 @@ function Tv() {
             <Overview>{popularPlaying?.results[0].overview}</Overview>
           </Banner>
           <SliderContainer>
-            <SliderTitle>방영 중인 드라마</SliderTitle>
+            <SliderTitle>방영 중인 시리즈</SliderTitle>
             <Slider movies={nowPlaying?.results!} kid="tv" />
 
-            <SliderTitle>인기 드라마</SliderTitle>
+            <SliderTitle>인기 시리즈</SliderTitle>
             <Slider movies={popularPlaying?.results!} kid="tv" />
 
-            <SliderTitle>평점 높은 드라마</SliderTitle>
+            <SliderTitle>평점 높은 시리즈</SliderTitle>
             <Slider movies={TopRatedPlaying?.results!} kid="tv" />
           </SliderContainer>
           <TvModal modal={bigMovieMatch?.params.Id!} />

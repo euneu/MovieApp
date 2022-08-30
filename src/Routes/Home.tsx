@@ -63,7 +63,7 @@ function Home() {
   const navigate = useNavigate();
   // route가 url에 위치하면 데이터가 존재 없으면 null
   const bigMovieMatch: PathMatch<string> | null = useMatch("/movie/:Id");
-  console.log(bigMovieMatch);
+
   const { data: nowPlaying, isLoading: nowLoad } = useQuery<IGetMovieResult>(
     ["movies", "nowPlaying"],
     () => getNow("movie", "now_playing")

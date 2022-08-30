@@ -127,9 +127,10 @@ interface IMovie {
 interface ISlide {
   movies: IMovie[];
   kid: string;
+  search?: string;
 }
 
-function Slider({ movies, kid }: ISlide) {
+function Slider({ movies, kid, search }: ISlide) {
   const navigate = useNavigate();
   // ⭐ 한번에 보여주고 싶은 영화의 수
   const offset = 6;
